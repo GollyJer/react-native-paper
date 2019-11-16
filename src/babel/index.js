@@ -1,4 +1,5 @@
 const SKIP = Symbol('SKIP');
+const os = require('os');
 
 module.exports = function rewire(babel, options) {
   const t = babel.types;
@@ -19,7 +20,15 @@ module.exports = function rewire(babel, options) {
             const mapping = mappings[specifier.imported.name];
 
             if (mapping) {
-              const alias = `${name}/${mapping.path}`;
+              const mappingPath = `${name}/${mapping.path}`;
+
+              let alias;
+              if (os.platform() === 'win32') {
+                alias = mappingPath.replace(/\//g, '\\');
+              } else {
+                alias = mappingPath;
+              }
+
               const identifier = t.identifier(specifier.local.name);
 
               let s;
